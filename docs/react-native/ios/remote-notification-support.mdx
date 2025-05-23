@@ -56,6 +56,7 @@ Ensure that your new extension has access to `NotifeeExtensionHelper` by adding 
 $NotifeeExtension = true
 
 target 'NotifeeNotificationService' do
+  # RNNotifeeCore needs to be static
   use_frameworks! :linkage => :static
   pod 'RNNotifeeCore', :path => '../node_modules/@notifee/react-native/RNNotifeeCore.podspec'
 end
@@ -83,14 +84,14 @@ At this point everything should still be running normally. This is the final ste
 ```objectivec
 - // Modify the notification content here...
 - self.bestAttemptContent.title = [NSString stringWithFormat:@"%@ [modified]", self.bestAttemptContent.title];
-    
+
 - self.contentHandler(self.bestAttemptContent);
 + [NotifeeExtensionHelper populateNotificationContent:request
                                 withContent: self.bestAttemptContent
                                 withContentHandler:contentHandler];
 ```
 
-Before, moving to the next step, run the app and check it builds successfully – make sure you have the correct target selected. 
+Before, moving to the next step, run the app and check it builds successfully – make sure you have the correct target selected.
 
 ### Edit the payload
 
@@ -116,7 +117,7 @@ Now everything is setup in your app, you can alter your notification payload in 
     apns: {
         payload: {
             aps: {
-                // Payloads coming from Admin SDK should specify params in camelCase. 
+                // Payloads coming from Admin SDK should specify params in camelCase.
                 // Payloads from REST API should specify in kebab-case
                 // see their respective reference documentation
                 'contentAvailable': 1, // Important, to receive `onMessage` event in the foreground when message is incoming
@@ -148,11 +149,11 @@ In your NotifeeNotificationService.m file you should have method `didReceiveNoti
 - (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
-  
+
     NSMutableDictionary *userInfoDict = [self.bestAttemptContent.userInfo mutableCopy];
     userInfoDict[@"notifee_options"] = [NSMutableDictionary dictionary];
     userInfoDict[@"notifee_options"][@"title"] = @"Modified Title";
-  
+
     self.bestAttemptContent.userInfo = userInfoDict;
 
     [NotifeeExtensionHelper populateNotificationContent:request
