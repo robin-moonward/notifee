@@ -56,6 +56,7 @@ Ensure that your new extension has access to `NotifeeExtensionHelper` by adding 
 $NotifeeExtension = true
 
 target 'NotifeeNotificationService' do
+  use_frameworks! :linkage => :static
   pod 'RNNotifeeCore', :path => '../node_modules/@notifee/react-native/RNNotifeeCore.podspec'
 end
 
